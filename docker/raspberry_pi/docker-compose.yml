@@ -14,4 +14,4 @@ services:
     volumes: 
       - ./yocto/conf/local.conf:/home/build/oe-core/build/conf/local.conf   
       - ./yocto/conf/bblayers.conf:/home/build/oe-core/build/conf/bblayers.conf   
-      - ../src:/media/src
+      - ../../src:/media/src
