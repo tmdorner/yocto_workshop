@@ -1,0 +1,17 @@
+version: "3"
+
+services:
+  raspberry_yocto:
+    build: .
+    network_mode: host
+    command: 
+      - /bin/bash
+      - -c
+      - |
+        source /home/build/oe-core/layers/poky/oe-init-build-env 
+        tail -f /dev/null
+
+    volumes: 
+      - ./yocto/conf/local.conf:/home/build/oe-core/build/conf/local.conf   
+      - ./yocto/conf/bblayers.conf:/home/build/oe-core/build/conf/bblayers.conf   
+      - ../src:/media/src

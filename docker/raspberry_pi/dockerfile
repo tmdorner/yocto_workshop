@@ -1,0 +1,76 @@
+FROM ubuntu:22.04                                                                
+LABEL MAINTAINER="Tiago Mayer Dörner <tiago.dorner@gmail.com>"
+
+ENV NAME    Tiago
+ENV LAST_NAME   Dorner
+ENV EMAIL   tiago.dorner@sc.senai.br
+
+# This implementation is basead in https://subscription.packtpub.com/book/virtualization_and_cloud/9781788399210/1/ch01lvl1sec21/using-docker-as-a-yocto-build-system-container
+# and the linux suppled by Toradex https://developer.toradex.com/knowledge-base/board-support-package/openembedded-core version 5.0
+
+# Upgrade system and Yocto Project basic dependencies                            
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt update && apt -y upgrade && apt -y install gawk wget git diffstat unzip texinfo gcc build-essential chrpath socat cpio python3 python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev python3-subunit mesa-common-dev zstd liblz4-tool file curl python-is-python3
+
+# Set up locales                                                                 
+RUN apt -y install locales apt-utils sudo && dpkg-reconfigure locales && locale-gen en_US.UTF-8 && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 
+ENV LANG en_US.utf8                                                              
+                                                                                 
+# Clean up APT when done.                                                        
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*               
+                                                                                
+# Replace dash with bash                                                         
+RUN rm /bin/sh && ln -s bash /bin/sh                                        
+                                                                                 
+# User management                                                                
+RUN groupadd -g 1000 build && useradd -u 1000 -g 1000 -ms /bin/bash build && usermod -a -G sudo build && usermod -a -G users build 
+                                                                                 
+
+# Run as build user from the installation path                                   
+USER build
+ENV HOME    /home/build
+ENV YOCTO_INSTALL_PATH "${HOME}/oe-core"                                              
+RUN install -o 1000 -g 1000 -d $YOCTO_INSTALL_PATH
+
+WORKDIR ${YOCTO_INSTALL_PATH}
+
+RUN install -o 1000 -g 1000 -d layers 
+                                                                       
+WORKDIR ${YOCTO_INSTALL_PATH}/layers   
+
+RUN pwd 
+
+# RUN mkdir layers
+# RUN cd layers
+                                                                                 
+# Set the Yocto release                                                          
+ENV YOCTO_RELEASE "kirkstone"                                                         
+
+# Install Dunfell
+RUN git config --global user.email "tiago.dorner@sc.senai.br"
+RUN git config --global user.name "Tiago Dorner"
+
+RUN alias python=python3
+
+RUN git clone -b ${YOCTO_RELEASE} git://git.yoctoproject.org/poky.git
+RUN git clone -b ${YOCTO_RELEASE} git://git.yoctoproject.org/meta-raspberrypi.git
+RUN git clone -b ${YOCTO_RELEASE} git://git.openembedded.org/meta-openembedded
+
+# Configuring the base environment to build Yocto
+WORKDIR ${YOCTO_INSTALL_PATH}
+RUN . "${YOCTO_INSTALL_PATH}/layers/poky/oe-init-build-env"
+# RUN bitbake-layers add-layer ../meta-openembedded/meta-oe
+# RUN bitbake-layers add-layer ../meta-openembedded/meta-python
+# RUN bitbake-layers add-layer ../meta-openembedded/meta-multimedia
+# RUN bitbake-layers add-layer ../meta-openembedded/meta-networking
+# RUN bitbake-layers add-layer ../meta-raspberrypi
+
+
+# Setting users password (SET IT AT THE BEGIN OF THIS SCRIPT)
+USER root
+RUN echo "root:root" | chpasswd
+RUN echo "build:root" | chpasswd
+USER build
+
+RUN cd "${YOCTO_INSTALL_PATH}"
