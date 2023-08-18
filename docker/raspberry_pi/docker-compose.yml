@@ -15,3 +15,4 @@ services:
       - ./yocto/conf/local.conf:/home/build/oe-core/build/conf/local.conf   
       - ./yocto/conf/bblayers.conf:/home/build/oe-core/build/conf/bblayers.conf   
       - ../../src:/media/src
+      - ../../layers/meta-worksop:/home/build/oe-core/layers/meta-worksop
