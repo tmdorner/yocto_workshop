@@ -40,9 +40,6 @@ RUN install -o 1000 -g 1000 -d layers
 WORKDIR ${YOCTO_INSTALL_PATH}/layers   
 
 RUN pwd 
-
-# RUN mkdir layers
-# RUN cd layers
                                                                                  
 # Set the Yocto release                                                          
 ENV YOCTO_RELEASE "kirkstone"                                                         
@@ -60,12 +57,6 @@ RUN git clone -b ${YOCTO_RELEASE} git://git.openembedded.org/meta-openembedded
 # Configuring the base environment to build Yocto
 WORKDIR ${YOCTO_INSTALL_PATH}
 RUN . "${YOCTO_INSTALL_PATH}/layers/poky/oe-init-build-env"
-# RUN bitbake-layers add-layer ../meta-openembedded/meta-oe
-# RUN bitbake-layers add-layer ../meta-openembedded/meta-python
-# RUN bitbake-layers add-layer ../meta-openembedded/meta-multimedia
-# RUN bitbake-layers add-layer ../meta-openembedded/meta-networking
-# RUN bitbake-layers add-layer ../meta-raspberrypi
-
 
 # Setting users password (SET IT AT THE BEGIN OF THIS SCRIPT)
 USER root
