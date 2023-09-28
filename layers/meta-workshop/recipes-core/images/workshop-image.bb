@@ -8,10 +8,11 @@ EXTRA_USERS_PARAMS = " \
 # root: senhaforte -> mkpasswd -m sha-512 senhaforte -s "123456789"
 # tiago: maisforte -> mkpasswd -m sha-512 maisforte -s "987654321"
 
-IMAGE_FEATURES = "ssh-server-openssh package-management"
+IMAGE_FEATURES = "ssh-server-openssh package-management splash "
 # debug-tweaks
 
 IMAGE_INSTALL:append = " \
 	cmake-example \
 	python3-paramiko \
+	kernel-modules \
 	"
